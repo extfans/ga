@@ -2,7 +2,8 @@
   "name": "@extfans/ga",
   "version": "1.0.0",
   "description": "简单的google analytics实现",
-  "main": "dist/extfans.esm.js",
+  "main": "dist/extfans-ga.js",
+  "browser": "dist/extfans-ga.esm.js",
   "scripts": {
     "dev": "karma start test/karmaConfig/dev.js",
     "test": "karma start test/karmaConfig/test.js",
