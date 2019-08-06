@@ -18,9 +18,9 @@
   "author": "extfans",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/butsalt/extfans-ga/issues"
+    "url": "https://github.com/extfans/ga/issues"
   },
-  "homepage": "https://github.com/butsalt/extfans-ga#readme",
+  "homepage": "https://github.com/extfans/ga#readme",
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
