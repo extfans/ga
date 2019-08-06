@@ -3,42 +3,38 @@ function getSystemInfo() {
     sr: screen.width + 'x' + window.screen.height,
     sd: screen.colorDepth + '-bits',
     ul: navigator.language
-  }
+  };
 }
 
 function genClientId() {
-  let d = Date.now() + performance.now();
+  var d = Date.now() + performance.now();
 
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-    .replace(
-      /[xy]/g,
-      c => {
-        let r = (d + Math.random() * 16) % 16 | 0;
-        d = Math.floor(d / 16);
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    }
-  );
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    var r = (d + Math.random() * 16) % 16 | 0;
+    d = Math.floor(d / 16);
+    return (c === 'x' ? r : r & 0x3 | 0x8).toString(16);
+  });
 }
 
-let t = new Date().valueOf();
+var t = new Date().valueOf();
 
 function genNonce() {
   return t++;
 }
 
 var storage = {
-  get(key) {
+  get: function get(key) {
     return localStorage.getItem(key);
   },
-  set(key, val) {
+  set: function set(key, val) {
     localStorage.setItem(key, val);
   }
 };
 
 function assembleParams(paramMap) {
-  const paramArr = [];
-  for (let key in paramMap) {
-    let val = paramMap[key];
+  var paramArr = [];
+  for (var key in paramMap) {
+    var val = paramMap[key];
 
     if (val == null || val === false) {
       continue;
@@ -48,25 +44,63 @@ function assembleParams(paramMap) {
       val = 1;
     }
 
-    paramArr.push(
-      encodeURIComponent(key) + '=' + encodeURIComponent(val)
-    );
+    paramArr.push(encodeURIComponent(key) + '=' + encodeURIComponent(val));
   }
   return paramArr.join('&');
 }
 
-class Ga {
-  constructor(info) {
-    const me = this;
+var classCallCheck = function (instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+};
+
+var createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) defineProperties(Constructor, staticProps);
+    return Constructor;
+  };
+}();
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return target;
+};
+
+var ExtfansGa = function () {
+  function ExtfansGa(info) {
+    classCallCheck(this, ExtfansGa);
+
+    var me = this;
 
     // base
-    const baseInfo = me.baseInfo = {
+    var baseInfo = me.baseInfo = {
       v: 1,
       tid: info.trackingId,
-      uid: info.userId,
+      uid: info.userId
     };
 
-    let clientId = storage.get('ga:clientId');
+    var clientId = storage.get('ga:clientId');
     if (!clientId) {
       clientId = genClientId();
       storage.set('ga:clientId', clientId);
@@ -78,73 +112,68 @@ class Ga {
 
     // extra
     me.extraInfo = {
-      dl: (location.href.split('#'))[0]
+      dl: location.href.split('#')[0]
     };
   }
 
-  event(info) {
-    const me = this;
+  createClass(ExtfansGa, [{
+    key: 'event',
+    value: function event(info) {
+      var me = this;
 
-    return me.send(
-      'event',
-      {
+      return me.send('event', {
         ec: info.category,
         ea: info.action,
         el: info.label,
         ev: info.value,
         ni: info.nonInteraction === true
-      }
-    );
-  }
+      });
+    }
+  }, {
+    key: 'pageview',
+    value: function pageview() {
+      var info = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-  pageview(info={}) {
-    const me = this;
+      var me = this;
 
-    return me.send(
-      'pageview',
-      {
+      return me.send('pageview', {
         dl: info.location,
         dh: info.host,
         dp: info.page,
         dt: info.title || document.title
-      }
-    );
-  }
-
-  send(type, sendInfo) {
-    const me = this;
-
-    const info = {
-      _t: genNonce(),
-      t: type,
-      ...me.baseInfo,
-      ...me.systemInfo,
-      ...sendInfo
-    };
-
-    const extraInfo = me.extraInfo;
-    for (let key in extraInfo) {
-      if (info[key] == null) {
-        info[key] = extraInfo[key];
-      }
+      });
     }
+  }, {
+    key: 'send',
+    value: function send(type, sendInfo) {
+      var me = this;
 
-    const xhr = new XMLHttpRequest();
+      var info = _extends({
+        _t: genNonce(),
+        t: type
+      }, me.baseInfo, me.systemInfo, sendInfo);
 
-    const url = 'https://www.google-analytics.com/collect?' + assembleParams(info);
+      var extraInfo = me.extraInfo;
+      for (var key in extraInfo) {
+        if (info[key] == null) {
+          info[key] = extraInfo[key];
+        }
+      }
 
-    xhr.open(
-      'GET',
-      url,
-      true
-    );
+      var xhr = new XMLHttpRequest();
 
-    xhr.send(null);
+      var url = 'https://www.google-analytics.com/collect?' + assembleParams(info);
 
-    return url;
-  }
-}
+      xhr.open('GET', url, true);
 
-Ga.version = "1.0.0";
+      xhr.send(null);
 
-export default Ga;
+      return url;
+    }
+  }]);
+  return ExtfansGa;
+}();
+
+ExtfansGa.version = "1.0.2";
+
+export default ExtfansGa;
