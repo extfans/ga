@@ -30,7 +30,20 @@ class ExtfansGa {
       dl: (location.href.split('#'))[0]
     };
   }
+  getEventUrl(info){
+    const me = this;
 
+    return me.getSendUrl(
+      'event',
+      {
+        ec: info.category,
+        ea: info.action,
+        el: info.label,
+        ev: info.value,
+        ni: info.nonInteraction === true
+      }
+    );
+  }
   event(info) {
     const me = this;
 
@@ -45,7 +58,19 @@ class ExtfansGa {
       }
     );
   }
+  getPageviewUrl(info={}){
+    const me = this;
 
+    return me.getSendUrl(
+      'pageview',
+      {
+        dl: info.location,
+        dh: info.host,
+        dp: info.page,
+        dt: info.title || document.title
+      }
+    );
+  }
   pageview(info={}) {
     const me = this;
 
@@ -89,6 +114,28 @@ class ExtfansGa {
     );
 
     xhr.send(null);
+
+    return url;
+  }
+  getSendUrl(type, sendInfo){
+    const me = this;
+
+    const info = {
+      _t: genNonce(),
+      t: type,
+      ...me.baseInfo,
+      ...me.systemInfo,
+      ...sendInfo
+    };
+
+    const extraInfo = me.extraInfo;
+    for (let key in extraInfo) {
+      if (info[key] == null) {
+        info[key] = extraInfo[key];
+      }
+    }
+
+    const url = 'https://www.google-analytics.com/collect?' + assembleParams(info);
 
     return url;
   }

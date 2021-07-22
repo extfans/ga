@@ -117,6 +117,19 @@ var ExtfansGa = function () {
   }
 
   createClass(ExtfansGa, [{
+    key: 'getEventUrl',
+    value: function getEventUrl(info) {
+      var me = this;
+
+      return me.getSendUrl('event', {
+        ec: info.category,
+        ea: info.action,
+        el: info.label,
+        ev: info.value,
+        ni: info.nonInteraction === true
+      });
+    }
+  }, {
     key: 'event',
     value: function event(info) {
       var me = this;
@@ -127,6 +140,20 @@ var ExtfansGa = function () {
         el: info.label,
         ev: info.value,
         ni: info.nonInteraction === true
+      });
+    }
+  }, {
+    key: 'getPageviewUrl',
+    value: function getPageviewUrl() {
+      var info = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+      var me = this;
+
+      return me.getSendUrl('pageview', {
+        dl: info.location,
+        dh: info.host,
+        dp: info.page,
+        dt: info.title || document.title
       });
     }
   }, {
@@ -167,6 +194,27 @@ var ExtfansGa = function () {
       xhr.open('GET', url, true);
 
       xhr.send(null);
+
+      return url;
+    }
+  }, {
+    key: 'getSendUrl',
+    value: function getSendUrl(type, sendInfo) {
+      var me = this;
+
+      var info = _extends({
+        _t: genNonce(),
+        t: type
+      }, me.baseInfo, me.systemInfo, sendInfo);
+
+      var extraInfo = me.extraInfo;
+      for (var key in extraInfo) {
+        if (info[key] == null) {
+          info[key] = extraInfo[key];
+        }
+      }
+
+      var url = 'https://www.google-analytics.com/collect?' + assembleParams(info);
 
       return url;
     }
