@@ -1,6 +1,6 @@
 {
   "name": "@extfans/ga",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "简单的google analytics实现",
   "main": "dist/extfans-ga.js",
   "browser": "dist/extfans-ga.esm.js",
